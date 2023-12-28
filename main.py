@@ -93,7 +93,7 @@ class ParsBybit():
                 # еще один таймаут, чтобы страница не грузилась долго
                 driver.set_page_load_timeout(self.timeout_pars)
                 # объект для явного ожидания, чтобы не было ошибок, что элемент не найден на странице
-                wait = WebDriverWait(driver, 1)
+                wait = WebDriverWait(driver, 2)
 
                 try:
                     # Загрузка страницы
@@ -152,40 +152,41 @@ class ParsBybit():
                         driver.find_element(By.XPATH,
                                             '//div[@class="ant-select-selector"]').click()  # список с валютами
 
-                        btn = wait.until(
-                            EC.visibility_of_element_located(
-                                (By.XPATH, f"//div[@class='fiat-otc-option-flex' and contains(., '{currency}')]")
-                            )
-                        )
-                        btn.click()
+                        XPATH_wait_until(f"//div[@class='fiat-otc-option-flex' and contains(., '{currency}')]")
 
                         if currency == 'BTC':
                             XPATH_wait_until('//div[@class="by-switch__item"]')  # выбираем продажа или покупка
 
+                            time.sleep(0.1)
                             ParsBybit.BS4_Parser(bank=bank, html_code=driver.page_source, transaction='sell',
                                                  currency=currency)  # продажа
 
                             XPATH_wait_until('//div[@class="by-switch__item"]')  # выбираем продажа или покупка
 
+                            time.sleep(0.1)
                             ParsBybit.BS4_Parser(bank=bank, html_code=driver.page_source, transaction='buy',
                                                  currency=currency)  # покупка
                         elif currency == 'ETH':
                             XPATH_wait_until('//div[@class="by-switch__item"]')  # выбираем продажа или покупка
 
+                            time.sleep(0.1)
                             ParsBybit.BS4_Parser(bank=bank, html_code=driver.page_source, transaction='buy',
                                                  currency=currency)  # покупка
 
                             XPATH_wait_until('//div[@class="by-switch__item"]')  # выбираем продажа или покупка
 
+                            time.sleep(0.1)
                             ParsBybit.BS4_Parser(bank=bank, html_code=driver.page_source, transaction='sell',
                                                  currency=currency)  # продажа
                         elif currency == 'USDC':
                             XPATH_wait_until('//div[@class="by-switch__item"]')  # выбираем продажа или покупка
 
+                            time.sleep(0.1)
                             ParsBybit.BS4_Parser(bank=bank, html_code=driver.page_source, transaction='sell',
                                                  currency=currency)  # продажа
                             XPATH_wait_until('//div[@class="by-switch__item"]')  # выбираем продажа или покупка
 
+                            time.sleep(0.1)
                             ParsBybit.BS4_Parser(bank=bank, html_code=driver.page_source, transaction='buy',
                                                  currency=currency)  # покупка
         except Exception as e:
@@ -199,23 +200,30 @@ class ParsBybit():
         return ParsBybit.exhange_rates
 
 
+def write_csv(dict_currencies):
+    with open('data.csv', 'w', newline='') as csvfile:
+        fieldnames = ['Валюта', 'Банк', 'Курс', 'Операция']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for bank, values in dict_currencies.items():
+            for operation, currencies in values.items():
+                for currency, rate in currencies.items():
+                    writer.writerow({'Валюта': currency,
+                                     'Банк': f'{bank}',
+                                     'Курс': f"{rate}₽",
+                                     'Операция': f"{operation}"})
+
+        print('данные успешно записаны')
+
+
 # timeout зависит от интернета ( тут скорость указана для интернета 80-90 мбит/с )
 pars = ParsBybit(url='https://www.bybit.com/fiat/trade/otc/?actionType=1&token=USDT&fiat=RUB&paymentMethod=',
                  timeout_cookies=1.75,
-                 timeout_pars=2)
+                 timeout_pars=2.3)
 
 # функция выполняется от 5 до 15 секунд ( зависит от скорости интернета )
 dict_currencies = pars.pars_html(banks=['Raiffeisenbank'])
-print(dict_currencies)
 
-with open('data.csv', 'w', newline='') as csvfile:
-    fieldnames = ['Валюта', 'Банк', 'Курс']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-
-    for bank, values in dict_currencies.items():
-        for operation, currencies in values.items():
-            for currency, rate in currencies.items():
-                writer.writerow({'Валюта': currency, 'Банк': f'{bank}', 'Курс': f"{rate}₽ ({operation})"})
-
-    print('данные успешно записаны')
+# записываем наши данные в csv файле
+write_csv(dict_currencies)
