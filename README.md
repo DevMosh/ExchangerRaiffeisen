@@ -9,7 +9,9 @@
 python main.py
 ```
 
-**Instructions:**
+
+<u>**Instructions:**</u>
+-
 
 How to run the browser in the background ( headless mood ) ?
 -
