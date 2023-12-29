@@ -172,4 +172,6 @@ Temporary Items
 
 .idea/vcs.xml
 
+*.csv
+
 # End of https://www.gitignore.io/api/python,jupyternotebooks
