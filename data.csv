@@ -1,0 +1,9 @@
+Валюта,Банк,Курс,Операция
+USDT,Raiffeisenbank,90.00₽,buy
+BTC,Raiffeisenbank,"4,234,208.37₽",buy
+ETH,Raiffeisenbank,"219,100.00₽",buy
+USDC,Raiffeisenbank,91.22₽,buy
+USDT,Raiffeisenbank,95.03₽,sell
+BTC,Raiffeisenbank,"4,055,216.83₽",sell
+ETH,Raiffeisenbank,"223,400.00₽",sell
+USDC,Raiffeisenbank,91.22₽,sell
